@@ -1,0 +1,88 @@
+:root {
+    --primary: #1a1a1a;
+    --accent: #d4af37; /* Dourado Barbearia */
+    --bg: #f8f9fa;
+    --text: #333;
+    --success: #27ae60;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
+
+body { background-color: var(--bg); color: var(--text); }
+
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+/* Header Minimalista */
+header {
+    background: var(--primary);
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.logo h1 span { color: var(--accent); }
+
+.stats { display: flex; gap: 15px; }
+.stat-box {
+    background: rgba(255,255,255,0.1);
+    padding: 15px 25px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.stat-value { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
+
+/* Tabela Profissional */
+.table-container {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 15px; border-bottom: 2px solid #eee; color: #666; font-size: 0.9rem; }
+td { padding: 15px; border-bottom: 1px solid #eee; }
+
+/* Badges de Status */
+.status {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.status.agendado { background: #e3f2fd; color: #1976d2; }
+.status.concluido { background: #e8f5e9; color: #2e7d32; }
+.status.cancelado { background: #ffebee; color: #c62828; }
+
+/* Botões */
+.btn-action {
+    border: none;
+    background: #f0f0f0;
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.btn-action.cancel:hover { background: var(--danger); color: white; }
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    place-items: center;
+    z-index: 1000;
+}
+.modal.active { display: grid; }
+.modal-content { background: white; padding: 30px; border-radius: 15px; width: 500px; }
