@@ -3,66 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Barbeiro | Agendamentos</title>
+    <title>Barber Pro Admin | Gestão de Agendamentos</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="min-h-screen flex">
+    <!-- Overlay Mobile -->
+    <div id="sidebarOverlay" class="sidebar-overlay hidden"></div>
 
-    <div class="min-h-screen flex">
-        <aside class="w-64 bg-zinc-900 text-white hidden md:block">
-            <div class="p-6 text-2xl font-bold border-b border-zinc-800">BarberDash</div>
-            <nav class="mt-6">
-                <a href="#" class="block py-3 px-6 bg-zinc-800 border-l-4 border-yellow-500">
-                    <i class="fas fa-calendar-alt mr-2"></i> Agendamentos
-                </a>
-            </nav>
-        </aside>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div>
+                <h1 class="logo-text">
+                    BARBER<span class="gold-text">PRO</span>
+                </h1>
+                <p class="logo-subtitle">Painel Administrativo</p>
+            </div>
+            <button id="closeSidebar" class="sidebar-close-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
 
-        <main class="flex-1 p-4 md:p-8">
-            <header class="flex justify-between items-center mb-8">
-                <h1 class="text-2xl font-bold text-gray-800">Gestão de Horários</h1>
-                <div id="user-info" class="text-sm text-gray-600">Conectado como Barbeiro</div>
-            </header>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-link active">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                Dashboard
+            </a>
+            <a href="#" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+                Agenda
+            </a>
+            <a href="#" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Clientes
+            </a>
+        </nav>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
-                    <p class="text-gray-500 text-sm uppercase">Hoje</p>
-                    <h2 id="total-hoje" class="text-3xl font-bold">0</h2>
+        <div class="sidebar-footer">
+            <button class="logout-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                <span>Sair</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="main-header">
+            <div class="header-left">
+                <button id="openSidebar" class="mobile-menu-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <div>
+                    <h2 class="page-title">Resumo Diário</h2>
+                    <p class="current-date" id="currentDateDisplay"></p>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500">
-                    <p class="text-gray-500 text-sm uppercase">Pendentes</p>
-                    <h2 id="total-pendentes" class="text-3xl font-bold">0</h2>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
-                    <p class="text-gray-500 text-sm uppercase">Concluídos</p>
-                    <h2 id="total-concluidos" class="text-3xl font-bold">0</h2>
+            </div>
+            
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    id="searchInput"
+                    placeholder="Buscar cliente..." 
+                    class="search-input"
+                >
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </div>
+        </header>
+
+        <!-- Cards de Estatísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <p class="stat-label">Hoje</p>
+                <h3 class="stat-value" id="statsHoje">0</h3>
+                <p class="stat-update">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                    <span>Sincronizado</span>
+                </p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-label">Pendentes</p>
+                <h3 class="stat-value gold-text" id="statsPendentes">0</h3>
+                <p class="stat-description">Aguardando</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-label">Total</p>
+                <h3 class="stat-value" id="statsTotal">0</h3>
+                <p class="stat-description">Registos totais</p>
+            </div>
+        </div>
+
+        <!-- Container Principal -->
+        <div class="main-container">
+            <div class="container-header">
+                <h4 class="section-title">
+                    <span class="section-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                    </span>
+                    Agendamentos
+                </h4>
+
+                <div class="filters-container" id="barberFilters">
+                    <button data-barber="Todos" class="filter-btn active">Todos</button>
+                    <button data-barber="Marcio" class="filter-btn">Marcio</button>
+                    <button data-barber="Rodrigo" class="filter-btn">Rodrigo</button>
+                    <button data-barber="Vitor" class="filter-btn">Vitor</button>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                    <h3 class="font-bold text-gray-700">Lista de Clientes</h3>
+            <!-- Tabela -->
+            <div class="table-wrapper">
+                <div id="mainLoader" class="loader-container">
+                    <div class="loader"></div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
-                            <tr>
-                                <th class="px-6 py-4">Cliente</th>
-                                <th class="px-6 py-4">Serviço</th>
-                                <th class="px-6 py-4">Data/Hora</th>
-                                <th class="px-6 py-4">Status</th>
-                                <th class="px-6 py-4 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-agendamentos" class="divide-y divide-gray-100">
-                            </tbody>
-                    </table>
-                </div>
+                
+                <table class="appointments-table hidden" id="appointmentsTable">
+                    <thead>
+                        <tr class="table-header">
+                            <th class="table-header-cell">Cliente</th>
+                            <th class="table-header-cell">Serviço</th>
+                            <th class="table-header-cell text-center">Data/Hora</th>
+                            <th class="table-header-cell text-center">Status</th>
+                            <th class="table-header-cell text-right">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="table-body">
+                        <!-- Conteúdo via JS -->
+                    </tbody>
+                </table>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
-    <script type="module" src="script.js"></script>
+    <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
 </body>
 </html>
