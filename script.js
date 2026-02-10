@@ -12,14 +12,14 @@ const firebaseConfig = {
 };
 
 // =======================
-// Estado da aplicação
+// Estado
 // =======================
 let agendamentos = [];
 let currentFilter = 'Todos';
 let searchTerm = '';
 
 // =======================
-// Elementos DOM
+// DOM
 // =======================
 const tableBody = document.getElementById('tableBody');
 const appointmentsTable = document.getElementById('appointmentsTable');
@@ -36,18 +36,16 @@ const openSidebarBtn = document.getElementById('openSidebar');
 const closeSidebarBtn = document.getElementById('closeSidebar');
 
 // =======================
-// Carregamento inicial
+// Inicialização
 // =======================
 document.addEventListener('DOMContentLoaded', () => {
-    const dateOptions = {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    };
-
     document.getElementById('currentDateDisplay').textContent =
-        new Date().toLocaleDateString('pt-BR', dateOptions);
+        new Date().toLocaleDateString('pt-BR', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
 
     setupEventListeners();
     initFirebase();
@@ -57,29 +55,23 @@ document.addEventListener('DOMContentLoaded', () => {
 // Eventos
 // =======================
 function setupEventListeners() {
-    openSidebarBtn.addEventListener('click', toggleSidebar);
-    closeSidebarBtn.addEventListener('click', toggleSidebar);
-    sidebarOverlay.addEventListener('click', toggleSidebar);
+    openSidebarBtn.onclick = toggleSidebar;
+    closeSidebarBtn.onclick = toggleSidebar;
+    sidebarOverlay.onclick = toggleSidebar;
 
     filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            filterBtns.forEach(b => {
-                b.classList.remove('active', 'bg-[#c5a059]', 'text-black');
-                b.classList.add('bg-black/40', 'text-gray-400');
-            });
-
-            btn.classList.add('active', 'bg-[#c5a059]', 'text-black');
-            btn.classList.remove('bg-black/40', 'text-gray-400');
-
+        btn.onclick = () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
             currentFilter = btn.dataset.barber;
             renderDashboard();
-        });
+        };
     });
 
-    searchInput.addEventListener('input', e => {
+    searchInput.oninput = e => {
         searchTerm = e.target.value.toLowerCase();
         renderDashboard();
-    });
+    };
 }
 
 function toggleSidebar() {
@@ -91,76 +83,65 @@ function toggleSidebar() {
 // Firebase
 // =======================
 function initFirebase() {
-    if (typeof firebase === 'undefined') {
-        console.error('Firebase não carregado');
-        return;
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
     }
 
-    firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 🔥 LIMPEZA AUTOMÁTICA AO ABRIR O PAINEL
+    // 🔥 Limpeza automática ao abrir o painel
     apagarAgendamentosAntigos(db);
 
-    const q = db.collection("agendamentos_barber").orderBy("data", "desc");
-
-    q.onSnapshot(snapshot => {
-        agendamentos = [];
-        snapshot.forEach(doc => {
-            agendamentos.push({
-                id: doc.id,
-                ...doc.data()
+    db.collection("agendamentos_barber")
+        .orderBy("data", "desc")
+        .onSnapshot(snapshot => {
+            agendamentos = [];
+            snapshot.forEach(doc => {
+                agendamentos.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
             });
+
+            renderDashboard();
+            updateStats();
+
+            mainLoader.classList.add('hidden');
+            appointmentsTable.classList.remove('hidden');
         });
-
-        renderDashboard();
-        updateStats();
-
-        mainLoader.classList.add('hidden');
-        appointmentsTable.classList.remove('hidden');
-    }, error => {
-        console.error("Erro Firebase:", error);
-        mainLoader.innerHTML = '<p class="text-red-400">Erro ao carregar dados</p>';
-    });
 }
 
 // =======================
-// 🔥 FUNÇÃO DE LIMPEZA
+// 🔥 Limpeza automática
 // =======================
 async function apagarAgendamentosAntigos(db) {
     const hoje = new Date().toISOString().split('T')[0];
-
     if (localStorage.getItem('limpezaFeita') === hoje) return;
 
-    try {
-        const snapshot = await db
-            .collection("agendamentos_barber")
-            .where("data", "<", hoje)
-            .get();
+    const snap = await db
+        .collection("agendamentos_barber")
+        .where("data", "<", hoje)
+        .get();
 
-        if (snapshot.empty) {
-            localStorage.setItem('limpezaFeita', hoje);
-            return;
-        }
-
-        const batch = db.batch();
-        snapshot.docs.forEach(doc => batch.delete(doc.ref));
-        await batch.commit();
-
-        console.log(`Agendamentos antigos apagados: ${snapshot.size}`);
+    if (snap.empty) {
         localStorage.setItem('limpezaFeita', hoje);
-    } catch (err) {
-        console.error("Erro ao limpar agendamentos:", err);
+        return;
     }
+
+    const batch = db.batch();
+    snap.docs.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+
+    localStorage.setItem('limpezaFeita', hoje);
+    console.log(`Apagados ${snap.size} agendamentos antigos`);
 }
 
 // =======================
 // Estatísticas
 // =======================
 function updateStats() {
-    const hojeStr = new Date().toISOString().split('T')[0];
-
-    statsHoje.textContent = agendamentos.filter(a => a.data === hojeStr).length;
+    const hoje = new Date().toISOString().split('T')[0];
+    statsHoje.textContent = agendamentos.filter(a => a.data === hoje).length;
     statsPendentes.textContent = agendamentos.filter(a => !a.concluido).length;
     statsTotal.textContent = agendamentos.length;
 }
@@ -172,15 +153,15 @@ function renderDashboard() {
     tableBody.innerHTML = '';
 
     const filtrados = agendamentos.filter(item => {
-        const matchesSearch =
-            searchTerm === '' ||
+        const matchBusca =
+            !searchTerm ||
             item.cliente?.toLowerCase().includes(searchTerm) ||
             item.telefone?.includes(searchTerm);
 
-        const matchesBarber =
+        const matchBarber =
             currentFilter === 'Todos' || item.barbeiro === currentFilter;
 
-        return matchesSearch && matchesBarber;
+        return matchBusca && matchBarber;
     });
 
     if (!filtrados.length) {
@@ -196,19 +177,57 @@ function renderDashboard() {
 
     filtrados.forEach(item => {
         const tr = document.createElement('tr');
+        tr.className = "hover:bg-white/[0.02]";
+
         tr.innerHTML = `
-            <td class="py-5 px-2">${item.cliente || 'Sem nome'}</td>
-            <td class="py-5 px-2">${item.servico || 'Corte'}</td>
-            <td class="py-5 px-2 text-center">${item.data} ${item.hora}</td>
-            <td class="py-5 px-2 text-center">
-                ${item.concluido ? '✓' : '...'}
+            <td class="py-5 px-2">
+                <div>
+                    <p class="font-semibold text-sm">
+                        ${item.cliente || 'Sem nome'}
+                    </p>
+                    <p class="text-xs text-gray-400">
+                        ${item.telefone || 'Sem telefone'}
+                    </p>
+                </div>
             </td>
+
+            <td class="py-5 px-2">
+                <p class="text-sm">${item.servico || 'Corte'}</p>
+                <p class="text-xs text-gray-400">${item.barbeiro || '-'}</p>
+            </td>
+
+            <td class="py-5 px-2 text-center">
+                <p class="text-sm font-bold">${item.hora || '--:--'}</p>
+                <p class="text-xs text-gray-500">${item.data}</p>
+            </td>
+
+            <td class="py-5 px-2 text-center">
+                <span class="${item.concluido ? 'text-green-400' : 'text-orange-400'}">
+                    ${item.concluido ? '✓' : '...'}
+                </span>
+            </td>
+
             <td class="py-5 px-2 text-right">
-                <button class="btn-delete text-red-400">Excluir</button>
+                <button class="btn-whatsapp text-green-400 mr-2">Whats</button>
+                <button class="btn-toggle text-blue-400 mr-2">✓</button>
+                <button class="btn-delete text-red-400">🗑</button>
             </td>
         `;
 
+        // WhatsApp
+        tr.querySelector('.btn-whatsapp').onclick = () => {
+            const tel = (item.telefone || '').replace(/\D/g, '');
+            if (tel.length >= 10) {
+                window.open(`https://wa.me/55${tel}`, '_blank');
+            }
+        };
+
+        // Toggle status
+        tr.querySelector('.btn-toggle').onclick = () => toggleStatus(item);
+
+        // Delete
         tr.querySelector('.btn-delete').onclick = () => deleteAppointment(item);
+
         tableBody.appendChild(tr);
     });
 }
@@ -216,12 +235,18 @@ function renderDashboard() {
 // =======================
 // Ações
 // =======================
+function toggleStatus(item) {
+    firebase.firestore()
+        .collection("agendamentos_barber")
+        .doc(item.id)
+        .update({ concluido: !item.concluido });
+}
+
 function deleteAppointment(item) {
     if (!confirm(`Excluir agendamento de ${item.cliente}?`)) return;
 
-    const db = firebase.firestore();
-    db.collection("agendamentos_barber")
+    firebase.firestore()
+        .collection("agendamentos_barber")
         .doc(item.id)
-        .delete()
-        .catch(err => alert("Erro ao excluir"));
+        .delete();
 }
